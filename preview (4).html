@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #000;
+      color: #fff;
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    .app {
+      width: min(92vw, 460px);
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 28px;
+      background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.05),
+        rgba(255,255,255,0.02)
+      );
+      box-shadow:
+        0 20px 60px rgba(255,255,255,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .status {
+      text-align: center;
+      margin-bottom: 22px;
+      color: rgba(255,255,255,0.78);
+      font-size: 15px;
+      min-height: 22px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.03);
+      color: #fff;
+      font-size: clamp(38px, 8vw, 64px);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .cell:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.28);
+    }
+
+    .cell:active {
+      transform: scale(0.985);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+    }
+
+    .clean-btn {
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #fff;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .clean-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>TIC TAC TOE</h1>
+    <div class="status" id="status">Loading...</div>
+    <div class="board" id="board"></div>
+    <div class="controls">
+      <button class="clean-btn" id="cleanBtn">Clean</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      onSnapshot,
+      setDoc,
+      runTransaction
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    // Replace with your Firebase config
+    const firebaseConfig = {
+       apiKey: "AIzaSyAe_bXjeooubZGCQZ0SEW-IAWqZwI8EdOw",
+  authDomain: "chatsstm321.firebaseapp.com",
+       projectId: "chatsstm321",
+  storageBucket: "chatsstm321.firebasestorage.app",
+  messagingSenderId: "903789528310",
+  appId: "1:903789528310:web:d028527f343756e2fb98d7",
+     
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const gameRef = doc(db, "games", "global");
+
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const cleanBtn = document.getElementById("cleanBtn");
+
+    function createBoard() {
+      boardEl.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const button = document.createElement("button");
+        button.className = "cell";
+        button.dataset.index = i;
+        button.addEventListener("click", () => playMove(i));
+        boardEl.appendChild(button);
+      }
+    }
+
+    function checkWinner(board) {
+      const lines = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+
+      for (const [a, b, c] of lines) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return board[a];
+        }
+      }
+
+      if (board.every(cell => cell !== "")) return "DRAW";
+      return null;
+    }
+
+    function renderGame(data) {
+      const board = data.board || ["", "", "", "", "", "", "", "", ""];
+      const nextPlayer = data.nextPlayer || "X";
+      const winner = checkWinner(board);
+
+      [...boardEl.children].forEach((cell, index) => {
+        cell.textContent = board[index];
+      });
+
+      if (winner === "DRAW") {
+        statusEl.textContent = "Draw";
+      } else if (winner) {
+        statusEl.textContent = `${winner} wins`;
+      } else {
+        statusEl.textContent = `Next: ${nextPlayer}`;
+      }
+    }
+
+    async function ensureGameExists() {
+      await setDoc(
+        gameRef,
+        {
+          board: ["", "", "", "", "", "", "", "", ""],
+          nextPlayer: "X"
+        },
+        { merge: true }
+      );
+    }
+
+    async function playMove(index) {
+      try {
+        await runTransaction(db, async (transaction) => {
+          const snap = await transaction.get(gameRef);
+          if (!snap.exists()) {
+            transaction.set(gameRef, {
+              board: ["", "", "", "", "", "", "", "", ""],
+              nextPlayer: "X"
+            });
+            return;
+          }
+
+          const data = snap.data();
+          const board = data.board || ["", "", "", "", "", "", "", "", ""];
+          const nextPlayer = data.nextPlayer || "X";
+          const winner = checkWinner(board);
+
+          if (winner) return;
+          if (board[index] !== "") return;
+
+          board[index] = nextPlayer;
+
+          transaction.update(gameRef, {
+            board,
+            nextPlayer: nextPlayer === "X" ? "O" : "X"
+          });
+        });
+      } catch (err) {
+        console.error("Move failed:", err);
+      }
+    }
+
+    async function cleanBoard() {
+      try {
+        await setDoc(gameRef, {
+          board: ["", "", "", "", "", "", "", "", ""],
+          nextPlayer: "X"
+        });
+      } catch (err) {
+        console.error("Clean failed:", err);
+      }
+    }
+
+    createBoard();
+    ensureGameExists();
+
+    onSnapshot(gameRef, (snap) => {
+      if (snap.exists()) {
+        renderGame(snap.data());
+      }
+    });
+
+    cleanBtn.addEventListener("click", cleanBoard);
+  </script>
+</body>
+</html>
