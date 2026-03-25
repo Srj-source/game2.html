@@ -248,6 +248,11 @@
   </style>
 </head>
 <body>
+      
+    <audio id="bg-music" loop>
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+ <script src="audio.js"></script>
   <main class="game">
     <div class="board-wrap">
       <div id="board" class="board" aria-label="Memory card game board"></div>
@@ -279,13 +284,7 @@
   </section> 
 
   <script>
-    /*
-      HOW TO USE:
-      1. Put your image URLs in pairImages.
-      2. Each image is duplicated once automatically.
-      3. When all pairs are matched, the surprise modal appears.
-      4. Owner cheat: press A, B, C in sequence to auto-match every card.
-    */
+   
 
     const heartLayout = [
       [0,0,1,1,0,1,1,0,0],
