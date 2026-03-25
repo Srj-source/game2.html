@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Games</title>
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: rgba(255,255,255,0.68);
+      --line: rgba(255,255,255,0.12);
+      --line-strong: rgba(255,255,255,0.22);
+      --panel: rgba(255,255,255,0.04);
+      --panel-hover: rgba(255,255,255,0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 35%),
+        #000;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      box-shadow:
+        0 25px 80px rgba(255,255,255,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      padding: 18px 8px 30px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(36px, 8vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      width: min(620px, 100%);
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 230px;
+      padding: 22px;
+      text-decoration: none;
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+      background: var(--panel-hover);
+    }
+
+    .game-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      background: rgba(255,255,255,0.03);
+      flex-shrink: 0;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      white-space: nowrap;
+    }
+
+    .game-title {
+      margin: 18px 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .game-desc {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .game-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      font-size: 20px;
+      color: var(--fg);
+    }
+
+    .footer {
+      margin-top: 22px;
+      padding: 8px 4px 0;
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .hero {
+        padding-bottom: 22px;
+      }
+
+      .game-card {
+        min-height: 210px;
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">hello miss s.....a</div>
+      <h1>Games section</h1>
+      <p class="subtitle">
+        all games are owned by shxbaa owner
+      </p>
+    </section>
+
+    <section class="games-grid" id="gamesGrid">
+      
+
+      <a class="game-card" href="https://srj-source.github.io/game2.html/match.html">
+        <div>
+          <div class="game-top">
+            <div class="icon">⌘</div>
+            <div class="tag">Soon</div>
+          </div>
+          <h2 class="game-title">Memory Game</h2>
+          <p class="game-desc">
+            Match pairs with a minimal premium interface built for quick sessions.
+          </p>
+        </div>
+        <div class="game-bottom">
+          <span>open game</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+       <a class="game-card" href="https://srj-source.github.io/game2.html/preview%20(4).html">
+        <div>
+          <div class="game-top">
+            <div class="icon">✕◯</div>
+            <div class="tag">Live</div>
+          </div>
+          <h2 class="game-title">Tic Tac Toe</h2>
+          <p class="game-desc">
+            my first live ,real time game
+          </p>
+        </div>
+        <div class="game-bottom">
+          <span>Open game</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+     
+    </section>
+
+    <div class="footer">other are coming</div>
+  </main>
+</body>
+</html>
