@@ -3,165 +3,452 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tic Tac Toe</title>
+  <title>Premium Live Tic Tac Toe</title>
   <style>
     * {
       box-sizing: border-box;
     }
 
+    :root {
+      --bg: #000000;
+      --panel: rgba(255, 255, 255, 0.05);
+      --panel-2: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.14);
+      --border-strong: rgba(255, 255, 255, 0.24);
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.72);
+      --shadow: rgba(255, 255, 255, 0.08);
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 28%),
+        radial-gradient(circle at bottom, rgba(255,255,255,0.04), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
       display: grid;
       place-items: center;
-      background: #000;
-      color: #fff;
-      font-family: Inter, Arial, sans-serif;
+      overflow-x: hidden;
     }
 
     .app {
-      width: min(92vw, 460px);
+      width: min(94vw, 560px);
       padding: 28px;
-      border: 1px solid rgba(255,255,255,0.14);
+      border: 1px solid var(--border);
       border-radius: 28px;
-      background: linear-gradient(
-        180deg,
-        rgba(255,255,255,0.05),
-        rgba(255,255,255,0.02)
-      );
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
       box-shadow:
-        0 20px 60px rgba(255,255,255,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.08);
+        0 24px 80px rgba(0, 0, 0, 0.7),
+        0 8px 30px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.06);
       backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 2;
     }
 
     h1 {
-      margin: 0 0 8px;
+      margin: 0;
       text-align: center;
       font-size: 28px;
-      letter-spacing: 0.08em;
-      font-weight: 700;
+      letter-spacing: 0.14em;
+      font-weight: 800;
     }
 
-    .status {
+    .sub {
+      margin: 10px 0 20px;
       text-align: center;
-      margin-bottom: 22px;
-      color: rgba(255,255,255,0.78);
-      font-size: 15px;
-      min-height: 22px;
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 20px;
     }
 
     .board {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .cell {
       aspect-ratio: 1 / 1;
-      border: 1px solid rgba(255,255,255,0.16);
       border-radius: 22px;
+      border: 1px solid var(--border);
       background: rgba(255,255,255,0.03);
-      color: #fff;
-      font-size: clamp(38px, 8vw, 64px);
-      font-weight: 700;
+      color: var(--text);
+      font-size: clamp(40px, 9vw, 64px);
+      font-weight: 800;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .cell:hover {
       transform: translateY(-1px);
       background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.28);
+      border-color: var(--border-strong);
+      box-shadow: 0 10px 28px rgba(255,255,255,0.05);
     }
 
     .cell:active {
       transform: scale(0.985);
     }
 
-    .controls {
-      display: flex;
-      justify-content: center;
+    .cell:disabled {
+      cursor: not-allowed;
+      opacity: 0.96;
     }
 
-    .clean-btn {
-      border: 1px solid rgba(255,255,255,0.2);
-      background: #fff;
-      color: #000;
-      padding: 12px 24px;
+    .toolbar {
+      display: grid;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .reactions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reaction-btn,
+    .send-btn,
+    .clean-btn,
+    .restart-btn {
       border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 11px 15px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
     }
 
-    .clean-btn:hover {
+    .reaction-btn:hover,
+    .send-btn:hover,
+    .clean-btn:hover,
+    .restart-btn:hover {
       transform: translateY(-1px);
+      background: rgba(255,255,255,0.08);
+      border-color: var(--border-strong);
+    }
+
+    .comment-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .comment-input {
+      flex: 1;
+      min-width: 0;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 13px 16px;
+      outline: none;
+      font-size: 14px;
+      transition: border-color 0.14s ease, background 0.14s ease;
+    }
+
+    .comment-input::placeholder {
+      color: rgba(255,255,255,0.45);
+    }
+
+    .comment-input:focus {
+      border-color: var(--border-strong);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .live-reaction {
+      text-align: center;
+      min-height: 22px;
+      font-size: 20px;
+    }
+
+    .comments-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .comment-card {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 14px;
+      min-height: 96px;
+    }
+
+    .comment-label {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 10px;
+    }
+
+    .comment-value {
+      font-size: 14px;
+      line-height: 1.45;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .comment-empty {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .clean-btn,
+    .restart-btn {
+      background: #ffffff;
+      color: #000000;
+      min-width: 118px;
+    }
+
+    .restart-btn.hidden {
+      display: none;
+    }
+
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 13px;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(4px);
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 18px;
+      background: #fff;
       opacity: 0.92;
+      border-radius: 2px;
+      z-index: 20;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(760deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      .comments-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .comment-row {
+        flex-direction: column;
+      }
+
+      .send-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <audio id="bg-music" loop>
-        <source src="audio.mp3" type="audio/mpeg">
-    </audio>
- <script src="audio.js"></script>
+  <div class="toast" id="toast"></div>
+
   <div class="app">
     <h1>TIC TAC TOE</h1>
-    <div class="status" id="status">Loading...</div>
+    <div class="sub" id="status">Connecting...</div>
+
     <div class="board" id="board"></div>
-    <div class="controls">
-      <button class="clean-btn" id="cleanBtn">Clean</button>
+
+    <div class="toolbar">
+      <div class="reactions">
+        <button class="reaction-btn" data-reaction="🔥">🔥</button>
+        <button class="reaction-btn" data-reaction="👏">👏</button>
+        <button class="reaction-btn" data-reaction="😂">😂</button>
+        <button class="reaction-btn" data-reaction="😮">😮</button>
+        <button class="reaction-btn" data-reaction="⚡">⚡</button>
+      </div>
+
+      <div class="live-reaction" id="liveReaction"></div>
+
+      <div class="comment-row">
+        <input
+          id="commentInput"
+          class="comment-input"
+          maxlength="120"
+          placeholder="Write live comment for current turn..."
+        />
+        <button id="sendComment" class="send-btn">Send</button>
+      </div>
+
+      <div class="comments-wrap">
+        <div class="comment-card">
+          <div class="comment-label">X COMMENT</div>
+          <div class="comment-value" id="xComment">-</div>
+        </div>
+
+        <div class="comment-card">
+          <div class="comment-label">O COMMENT</div>
+          <div class="comment-value" id="oComment">-</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="cleanBtn" class="clean-btn">Clean</button>
+        <button id="restartBtn" class="restart-btn hidden">Restart</button>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import {
-      getFirestore,
-      doc,
-      onSnapshot,
-      setDoc,
-      runTransaction
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+      getDatabase,
+      ref,
+      onValue,
+      runTransaction,
+      update
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-    // Replace with your Firebase config
+    // -----------------------------
+    // 1) PUT YOUR FIREBASE CONFIG
+    // -----------------------------
     const firebaseConfig = {
-       apiKey: "AIzaSyAe_bXjeooubZGCQZ0SEW-IAWqZwI8EdOw",
+     apiKey: "AIzaSyAe_bXjeooubZGCQZ0SEW-IAWqZwI8EdOw",
   authDomain: "chatsstm321.firebaseapp.com",
-       projectId: "chatsstm321",
+  databaseURL: "https://chatsstm321-default-rtdb.firebaseio.com",
+  projectId: "chatsstm321",
   storageBucket: "chatsstm321.firebasestorage.app",
   messagingSenderId: "903789528310",
-  appId: "1:903789528310:web:d028527f343756e2fb98d7",
-     
+  appId: "1:903789528310:web:d028527f343756e2fb98d7"
     };
 
+    // -----------------------------
+    // 2) FIREBASE INIT
+    // -----------------------------
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const gameRef = doc(db, "games", "global");
+    const db = getDatabase(app);
+    const gameRef = ref(db, "liveGame");
 
+    // -----------------------------
+    // 3) DOM
+    // -----------------------------
     const boardEl = document.getElementById("board");
     const statusEl = document.getElementById("status");
+    const commentInputEl = document.getElementById("commentInput");
+    const sendCommentBtn = document.getElementById("sendComment");
     const cleanBtn = document.getElementById("cleanBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const liveReactionEl = document.getElementById("liveReaction");
+    const xCommentEl = document.getElementById("xComment");
+    const oCommentEl = document.getElementById("oComment");
+    const toastEl = document.getElementById("toast");
 
-    function createBoard() {
-      boardEl.innerHTML = "";
-      for (let i = 0; i < 9; i++) {
-        const button = document.createElement("button");
-        button.className = "cell";
-        button.dataset.index = i;
-        button.addEventListener("click", () => playMove(i));
-        boardEl.appendChild(button);
-      }
+    // -----------------------------
+    // 4) DEVICE ID
+    // same browser/device should not play twice in a row
+    // -----------------------------
+    const deviceIdKey = "ttt_live_device_id";
+    let deviceId = localStorage.getItem(deviceIdKey);
+
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem(deviceIdKey, deviceId);
+    }
+
+    // -----------------------------
+    // 5) LOCAL STATE
+    // -----------------------------
+    let gameState = {
+      board: ["", "", "", "", "", "", "", "", ""],
+      nextPlayer: "X",
+      winner: "",
+      lastMoveBy: "",
+      reaction: "",
+      comments: { X: "", O: "" },
+      showRestart: false
+    };
+
+    let lastCelebratedWinner = "";
+
+    // -----------------------------
+    // 6) HELPERS
+    // -----------------------------
+    function getInitialState() {
+      return {
+        board: ["", "", "", "", "", "", "", "", ""],
+        nextPlayer: "X",
+        winner: "",
+        lastMoveBy: "",
+        reaction: "",
+        comments: {
+          X: "",
+          O: ""
+        },
+        showRestart: false
+      };
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        toastEl.classList.remove("show");
+      }, 1500);
     }
 
     function checkWinner(board) {
       const lines = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
       ];
 
       for (const [a, b, c] of lines) {
@@ -171,91 +458,243 @@
       }
 
       if (board.every(cell => cell !== "")) return "DRAW";
-      return null;
+      return "";
     }
 
-    function renderGame(data) {
-      const board = data.board || ["", "", "", "", "", "", "", "", ""];
-      const nextPlayer = data.nextPlayer || "X";
-      const winner = checkWinner(board);
+    function launchConfetti() {
+      for (let i = 0; i < 90; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.animationDuration = (2 + Math.random() * 2.1) + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(piece);
+
+        setTimeout(() => {
+          piece.remove();
+        }, 4500);
+      }
+    }
+
+    function createBoard() {
+      boardEl.innerHTML = "";
+
+      for (let i = 0; i < 9; i++) {
+        const button = document.createElement("button");
+        button.className = "cell";
+        button.type = "button";
+        button.addEventListener("click", () => playMove(i));
+        boardEl.appendChild(button);
+      }
+    }
+
+    function render(state) {
+      const comments = state.comments || { X: "", O: "" };
+      const winner = state.winner || "";
+      const lastMoveBy = state.lastMoveBy || "";
 
       [...boardEl.children].forEach((cell, index) => {
-        cell.textContent = board[index];
+        cell.textContent = state.board[index] || "";
       });
 
       if (winner === "DRAW") {
         statusEl.textContent = "Draw";
       } else if (winner) {
         statusEl.textContent = `${winner} wins`;
+      } else if (lastMoveBy === deviceId) {
+        statusEl.textContent = `Wait for another device • Next: ${state.nextPlayer}`;
       } else {
-        statusEl.textContent = `Next: ${nextPlayer}`;
+        statusEl.textContent = `Next: ${state.nextPlayer}`;
+      }
+
+      liveReactionEl.textContent = state.reaction ? `Reaction: ${state.reaction}` : "";
+
+      xCommentEl.innerHTML = comments.X
+        ? escapeHtml(comments.X)
+        : `<span class="comment-empty">-</span>`;
+
+      oCommentEl.innerHTML = comments.O
+        ? escapeHtml(comments.O)
+        : `<span class="comment-empty">-</span>`;
+
+      commentInputEl.placeholder = `Write live comment for ${state.nextPlayer || "X"}...`;
+
+      restartBtn.classList.toggle("hidden", !state.showRestart);
+    }
+
+    // -----------------------------
+    // 7) DATABASE INIT
+    // -----------------------------
+    async function ensureGameExists() {
+      await runTransaction(gameRef, (current) => {
+        if (current === null) {
+          return getInitialState();
+        }
+
+        return {
+          ...getInitialState(),
+          ...current,
+          comments: {
+            X: current.comments?.X || "",
+            O: current.comments?.O || ""
+          }
+        };
+      });
+    }
+
+    // -----------------------------
+    // 8) GAME ACTIONS
+    // -----------------------------
+    async function playMove(index) {
+      try {
+        const result = await runTransaction(gameRef, (current) => {
+          if (current === null) {
+            current = getInitialState();
+          }
+
+          const board = Array.isArray(current.board) ? [...current.board] : ["", "", "", "", "", "", "", "", ""];
+          const winner = current.winner || "";
+          const nextPlayer = current.nextPlayer || "X";
+          const lastMoveBy = current.lastMoveBy || "";
+
+          if (winner) return current;
+          if (board[index] !== "") return current;
+          if (lastMoveBy === deviceId) return current;
+
+          board[index] = nextPlayer;
+          const nextWinner = checkWinner(board);
+
+          return {
+            ...current,
+            board,
+            nextPlayer: nextPlayer === "X" ? "O" : "X",
+            winner: nextWinner,
+            lastMoveBy: deviceId,
+            comments: {
+              X: current.comments?.X || "",
+              O: current.comments?.O || ""
+            },
+            showRestart: !!nextWinner
+          };
+        });
+
+        if (!result.committed) {
+          showToast("Move not applied");
+        }
+      } catch (error) {
+        console.error(error);
+        showToast("Move failed");
       }
     }
 
-    async function ensureGameExists() {
-      await setDoc(
-        gameRef,
-        {
-          board: ["", "", "", "", "", "", "", "", ""],
-          nextPlayer: "X"
-        },
-        { merge: true }
-      );
+    async function sendReaction(reaction) {
+      try {
+        await update(gameRef, { reaction });
+      } catch (error) {
+        console.error(error);
+        showToast("Reaction failed");
+      }
     }
 
-    async function playMove(index) {
+    async function sendLiveComment() {
+      const text = commentInputEl.value.trim();
+      if (!text) return;
+
       try {
-        await runTransaction(db, async (transaction) => {
-          const snap = await transaction.get(gameRef);
-          if (!snap.exists()) {
-            transaction.set(gameRef, {
-              board: ["", "", "", "", "", "", "", "", ""],
-              nextPlayer: "X"
-            });
-            return;
+        await runTransaction(gameRef, (current) => {
+          if (current === null) {
+            current = getInitialState();
           }
 
-          const data = snap.data();
-          const board = data.board || ["", "", "", "", "", "", "", "", ""];
-          const nextPlayer = data.nextPlayer || "X";
-          const winner = checkWinner(board);
+          const side = current.nextPlayer || "X";
+          const comments = {
+            X: current.comments?.X || "",
+            O: current.comments?.O || ""
+          };
 
-          if (winner) return;
-          if (board[index] !== "") return;
+          comments[side] = text;
 
-          board[index] = nextPlayer;
-
-          transaction.update(gameRef, {
-            board,
-            nextPlayer: nextPlayer === "X" ? "O" : "X"
-          });
+          return {
+            ...current,
+            comments
+          };
         });
-      } catch (err) {
-        console.error("Move failed:", err);
+
+        commentInputEl.value = "";
+      } catch (error) {
+        console.error(error);
+        showToast("Comment failed");
       }
     }
 
     async function cleanBoard() {
       try {
-        await setDoc(gameRef, {
-          board: ["", "", "", "", "", "", "", "", ""],
-          nextPlayer: "X"
-        });
-      } catch (err) {
-        console.error("Clean failed:", err);
+        await update(gameRef, getInitialState());
+      } catch (error) {
+        console.error(error);
+        showToast("Clean failed");
       }
     }
 
-    createBoard();
-    ensureGameExists();
+    async function restartGame() {
+      try {
+        await update(gameRef, getInitialState());
+      } catch (error) {
+        console.error(error);
+        showToast("Restart failed");
+      }
+    }
 
-    onSnapshot(gameRef, (snap) => {
-      if (snap.exists()) {
-        renderGame(snap.data());
+    // -----------------------------
+    // 9) LIVE LISTENER
+    // -----------------------------
+    onValue(gameRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      gameState = {
+        ...getInitialState(),
+        ...data,
+        comments: {
+          X: data.comments?.X || "",
+          O: data.comments?.O || ""
+        }
+      };
+
+      render(gameState);
+
+      if (
+        gameState.winner &&
+        gameState.winner !== "DRAW" &&
+        gameState.winner !== lastCelebratedWinner
+      ) {
+        launchConfetti();
+      }
+
+      lastCelebratedWinner = gameState.winner || "";
+    });
+
+    // -----------------------------
+    // 10) EVENTS
+    // -----------------------------
+    createBoard();
+    await ensureGameExists();
+
+    cleanBtn.addEventListener("click", cleanBoard);
+    restartBtn.addEventListener("click", restartGame);
+    sendCommentBtn.addEventListener("click", sendLiveComment);
+
+    commentInputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendLiveComment();
       }
     });
 
-    cleanBtn.addEventListener("click", cleanBoard);
+    document.querySelectorAll(".reaction-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        sendReaction(button.dataset.reaction);
+      });
+    });
   </script>
 </body>
 </html>
